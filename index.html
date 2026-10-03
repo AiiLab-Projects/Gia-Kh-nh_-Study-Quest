@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3ed">
+  <title>Study Quest | Học tập có thưởng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f4f3ed;
+      --white: #fffefa;
+      --ink: #252821;
+      --muted: #85877d;
+      --line: #e7e6dd;
+      --green: #d8f36a;
+      --green-dark: #718d22;
+      --coral: #f47b5b;
+      --blue: #a8d7e5;
+      --yellow: #f4ce61;
+      --shadow: 0 12px 32px rgba(43, 48, 32, .055);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .app-shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; max-width: 1600px; margin: 0 auto; }
+    .sidebar { display: flex; flex-direction: column; padding: 28px 18px 22px; border-right: 1px solid var(--line); background: #f8f7f1; }
+    .brand { display: flex; gap: 11px; align-items: center; padding: 0 8px; margin-bottom: 48px; }
+    .brand-mark { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 12px; background: var(--ink); color: var(--green); font: 700 20px 'Space Grotesk', sans-serif; transform: rotate(-5deg); }
+    .brand-name { font: 700 17px 'Space Grotesk', sans-serif; letter-spacing: 0; }
+    .brand-name span { color: var(--green-dark); }
+    .nav-label, .eyebrow { color: var(--muted); font-size: 10px; line-height: 1.4; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+    .nav-label { padding: 0 10px; margin-bottom: 10px; }
+    .nav-link { display: flex; width: 100%; align-items: center; gap: 12px; padding: 11px 12px; border: 0; border-radius: 9px; background: transparent; text-align: left; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .nav-link.active { background: var(--green); }
+    .nav-icon { display: grid; width: 19px; place-items: center; color: #5e6256; font-size: 17px; }
+    .nav-count { margin-left: auto; color: var(--muted); font-size: 11px; }
+    .side-level { margin-top: auto; padding: 15px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); }
+    .side-level-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .level-badge { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 8px; background: var(--green); font: 700 12px 'Space Grotesk', sans-serif; }
+    .side-level strong { font: 600 12px 'Space Grotesk', sans-serif; }
+    .side-level small { color: var(--muted); font-size: 10px; }
+    .xp-track, .progress-track { height: 7px; overflow: hidden; border-radius: 10px; background: #eeeee7; }
+    .xp-fill, .progress-fill { height: 100%; border-radius: inherit; background: var(--green); transition: width .35s ease; }
+    .side-level .xp-track { margin-bottom: 7px; }
+    .side-level .xp-fill { background: var(--green-dark); }
+    .main { min-width: 0; padding: 29px clamp(20px, 4vw, 54px) 50px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 35px; }
+    .date-line { color: var(--muted); font-size: 12px; text-transform: capitalize; }
+    .topbar-right { display: flex; align-items: center; gap: 17px; }
+    .streak { display: flex; align-items: center; gap: 7px; color: #76776f; font-size: 12px; font-weight: 600; }
+    .streak-mark { color: var(--coral); font-size: 18px; }
+    .avatar { display: grid; width: 36px; height: 36px; place-items: center; border: 2px solid var(--white); border-radius: 50%; background: var(--blue); font: 700 12px 'Space Grotesk', sans-serif; }
+    .welcome { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 25px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { margin-top: 6px; font: 600 clamp(25px, 3vw, 34px)/1.15 'Space Grotesk', sans-serif; letter-spacing: 0; }
+    .subtitle { margin-top: 7px; color: var(--muted); font-size: 13px; }
+    .week-pill { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: #686b61; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .week-pill b { color: var(--ink); }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; margin-bottom: 27px; }
+    .stat { min-height: 94px; padding: 15px 17px; border: 1px solid var(--line); border-radius: 9px; background: var(--white); }
+    .stat-label { color: var(--muted); font-size: 11px; font-weight: 600; }
+    .stat-number { display: flex; align-items: baseline; gap: 6px; margin-top: 8px; font: 700 25px 'Space Grotesk', sans-serif; }
+    .stat-number small { color: var(--muted); font: 500 11px 'DM Sans', sans-serif; }
+    .stat-icon { float: right; display: grid; width: 28px; height: 28px; place-items: center; border-radius: 8px; font-size: 15px; }
+    .stat-icon.lime { background: #f0f7d9; }.stat-icon.coral { background: #fff0eb; }.stat-icon.blue { background: #e9f4f6; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 290px; align-items: start; gap: 21px; }
+    .quest-section { min-width: 0; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 13px; }
+    h2 { font: 600 17px 'Space Grotesk', sans-serif; }
+    .section-sub { margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .filter-row { display: flex; gap: 5px; margin-bottom: 12px; }
+    .filter { padding: 7px 11px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; }
+    .filter.active { background: var(--white); color: var(--ink); box-shadow: 0 1px 3px #27292012; }
+    .quest-list { display: grid; gap: 9px; }
+    .quest { position: relative; display: grid; grid-template-columns: 35px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 15px; border: 1px solid var(--line); border-radius: 9px; background: var(--white); transition: transform .18s, box-shadow .18s; animation: reveal .35s both; }
+    .quest:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .quest.completed { opacity: .66; }
+    .quest.completed .quest-title { text-decoration: line-through; }
+    .quest-check { width: 23px; height: 23px; display: grid; place-items: center; border: 1.5px solid #c9cbc0; border-radius: 50%; background: transparent; cursor: pointer; }
+    .quest-check:hover { border-color: var(--green-dark); background: #f2f8df; }
+    .completed .quest-check { border-color: var(--green-dark); background: var(--green); }
+    .quest-check svg { width: 12px; height: 12px; }
+    .quest-title { overflow-wrap: anywhere; font-size: 13px; font-weight: 700; }
+    .quest-meta { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 6px; color: var(--muted); font-size: 10px; }
+    .quest-meta span { display: inline-flex; align-items: center; gap: 4px; }
+    .subject-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+    .quest-side { display: grid; justify-items: end; gap: 8px; }
+    .reward { padding: 5px 8px; border-radius: 6px; background: #f2f7df; color: #63771f; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .deadline { color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .deadline.overdue { color: #cb563b; font-weight: 700; }
+    .delete-quest { position: absolute; top: 7px; right: 7px; display: none; width: 25px; height: 25px; border: 0; border-radius: 6px; background: #fff0eb; color: #bd5d46; cursor: pointer; }
+    .quest:hover .delete-quest, .delete-quest:focus-visible { display: grid; place-items: center; }
+    .empty-state { padding: 30px 18px; border: 1px dashed #d8d8ce; border-radius: 9px; color: var(--muted); text-align: center; font-size: 12px; }
+    .empty-state strong { display: block; margin-bottom: 5px; color: var(--ink); font: 600 14px 'Space Grotesk', sans-serif; }
+    .right-column { display: grid; gap: 14px; }
+    .panel { padding: 17px; border: 1px solid var(--line); border-radius: 9px; background: var(--white); }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .panel h3 { font: 600 13px 'Space Grotesk', sans-serif; }
+    .progress-top { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--muted); font-size: 10px; }
+    .progress-top strong { color: var(--ink); }
+    .progress-fill { background: var(--green-dark); }
+    .progress-caption { margin-top: 10px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .timer-panel { position: relative; overflow: hidden; background: var(--ink); color: var(--white); }
+    .timer-panel:after { position: absolute; right: -24px; bottom: -48px; width: 115px; height: 115px; border: 1px solid #ffffff18; border-radius: 50%; content: ''; box-shadow: 0 0 0 15px #ffffff08, 0 0 0 30px #ffffff05; pointer-events: none; }
+    .timer-panel .panel-head { position: relative; z-index: 1; }
+    .timer-panel h3 { color: var(--white); }
+    .timer-tag { color: #c4c6ba; font-size: 10px; }
+    .timer-display { position: relative; z-index: 1; margin: 4px 0 14px; color: var(--green); font: 600 37px 'Space Grotesk', sans-serif; font-variant-numeric: tabular-nums; }
+    .timer-actions { position: relative; z-index: 1; display: flex; gap: 7px; }
+    .timer-button { min-width: 75px; padding: 8px 12px; border: 0; border-radius: 6px; background: var(--green); color: var(--ink); font-size: 11px; font-weight: 700; cursor: pointer; }
+    .timer-reset { width: 33px; border: 1px solid #ffffff35; border-radius: 6px; background: transparent; color: white; cursor: pointer; font-size: 16px; }
+    .focus-note { position: relative; z-index: 1; margin-top: 13px; color: #c4c6ba; font-size: 10px; }
+    .focus-note strong { color: white; }
+    .form-panel { scroll-margin-top: 20px; }
+    .form-panel .panel-head { margin-bottom: 12px; }
+    .field { display: grid; gap: 5px; margin-bottom: 10px; }
+    .field label { color: #707269; font-size: 10px; font-weight: 600; }
+    .field input, .field select { width: 100%; height: 36px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; outline: none; background: #fffefa; color: var(--ink); font-size: 11px; }
+    .field input:focus, .field select:focus { border-color: #94a948; box-shadow: 0 0 0 2px #d8f36a55; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .add-button { display: flex; width: 100%; justify-content: center; align-items: center; gap: 7px; height: 38px; margin-top: 2px; border: 0; border-radius: 6px; background: var(--coral); color: white; font-size: 11px; font-weight: 700; cursor: pointer; transition: background .2s, transform .2s; }
+    .add-button:hover { background: #e86b4b; transform: translateY(-1px); }
+    .toast { position: fixed; right: 22px; bottom: 22px; z-index: 5; padding: 12px 16px; border-radius: 8px; background: var(--ink); color: white; font-size: 12px; box-shadow: var(--shadow); animation: reveal .2s both; }
+    .toast[hidden] { display: none; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 900px) { .app-shell { grid-template-columns: 190px minmax(0, 1fr); }.workspace { grid-template-columns: minmax(0, 1fr); }.right-column { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }.form-panel { grid-column: 1 / -1; } }
+    @media (max-width: 620px) { .app-shell { display: block; }.sidebar { position: sticky; top: 0; z-index: 3; display: flex; flex-direction: row; align-items: center; justify-content: space-between; height: 60px; padding: 8px 15px; border-right: 0; border-bottom: 1px solid var(--line); }.brand { margin: 0; padding: 0; }.brand-mark { width: 32px; height: 32px; }.side-level, .nav-label { display: none; }.sidebar nav { display: flex; gap: 4px; }.nav-link { width: auto; padding: 8px; }.nav-link span:not(.nav-icon), .nav-count { display: none; }.nav-icon { width: 22px; }.main { padding: 22px 16px 35px; }.topbar { margin-bottom: 25px; }.welcome { align-items: flex-start; flex-direction: column; gap: 13px; margin-bottom: 19px; }.stats { gap: 7px; margin-bottom: 23px; }.stat { min-height: 82px; padding: 12px 10px; }.stat-number { font-size: 21px; }.stat-label { font-size: 10px; }.stat-icon { width: 23px; height: 23px; font-size: 13px; }.quest { grid-template-columns: 27px minmax(0, 1fr) auto; gap: 8px; padding: 12px 10px; }.quest-title { font-size: 12px; }.quest-meta { gap: 6px 9px; font-size: 9px; }.quest-side { gap: 6px; }.reward { padding: 4px 6px; font-size: 9px; }.deadline { font-size: 9px; }.right-column { grid-template-columns: 1fr; }.form-panel { grid-column: auto; }.date-line { font-size: 10px; }.streak { font-size: 10px; }.topbar-right { gap: 10px; } }
+    @media (prefers-reduced-motion: reduce) { *, *:before, *:after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">S</div><div class="brand-name">study<span>quest</span></div></div>
+      <nav aria-label="Điều hướng">
+        <div class="nav-label">Không gian học</div>
+        <button class="nav-link active" type="button" data-filter="all"><span class="nav-icon" aria-hidden="true">◫</span><span>Nhiệm vụ</span><span class="nav-count" id="nav-count">0</span></button>
+        <button class="nav-link" type="button" data-filter="done"><span class="nav-icon" aria-hidden="true">✓</span><span>Đã hoàn thành</span></button>
+      </nav>
+      <div class="side-level">
+        <div class="side-level-top"><div><strong id="level-label">Cấp 1</strong><br><small id="xp-label">0 / 100 XP</small></div><div class="level-badge" id="level-badge">1</div></div>
+        <div class="xp-track"><div class="xp-fill" id="level-progress" style="width:0%"></div></div>
+        <small>Thêm XP để lên cấp tiếp theo</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar"><div class="date-line" id="today-date"></div><div class="topbar-right"><div class="streak"><span class="streak-mark" aria-hidden="true">✦</span><span id="streak-label">Bắt đầu chuỗi học nhé!</span></div><div class="avatar" aria-label="Học viên">HQ</div></div></header>
+      <section class="welcome"><div><div class="eyebrow">Bản đồ hành trình của bạn</div><h1>Chào bạn, nhà thám hiểm!</h1><p class="subtitle">Mỗi nhiệm vụ nhỏ đưa bạn gần hơn tới mục tiêu lớn.</p></div><div class="week-pill"><span aria-hidden="true">◷</span> Tuần này <b id="week-minutes">0 phút</b></div></section>
+
+      <section class="stats" aria-label="Thống kê học tập">
+        <article class="stat"><span class="stat-icon lime" aria-hidden="true">✧</span><div class="stat-label">Nhiệm vụ hoàn thành</div><div class="stat-number"><span id="done-count">0</span><small>nhiệm vụ</small></div></article>
+        <article class="stat"><span class="stat-icon coral" aria-hidden="true">⚑</span><div class="stat-label">Đang chờ chinh phục</div><div class="stat-number"><span id="pending-count">0</span><small>nhiệm vụ</small></div></article>
+        <article class="stat"><span class="stat-icon blue" aria-hidden="true">◷</span><div class="stat-label">Thời gian dự kiến</div><div class="stat-number"><span id="total-hours">0</span><small>giờ học</small></div></article>
+      </section>
+
+      <div class="workspace">
+        <section class="quest-section" aria-labelledby="quest-heading">
+          <div class="section-head"><div><h2 id="quest-heading">Bảng nhiệm vụ</h2><p class="section-sub">Chọn một nhiệm vụ và bắt đầu tiến lên.</p></div></div>
+          <div class="filter-row" role="group" aria-label="Lọc nhiệm vụ"><button class="filter active" type="button" data-list-filter="all">Tất cả</button><button class="filter" type="button" data-list-filter="pending">Đang làm</button><button class="filter" type="button" data-list-filter="done">Hoàn thành</button></div>
+          <div class="quest-list" id="quest-list" aria-live="polite"></div>
+        </section>
+
+        <aside class="right-column" aria-label="Tiến độ và công cụ">
+          <section class="panel"><div class="panel-head"><h3>Tiến độ hôm nay</h3><span aria-hidden="true">◈</span></div><div class="progress-top"><span id="progress-caption">0 / 0 nhiệm vụ</span><strong id="progress-percent">0%</strong></div><div class="progress-track"><div class="progress-fill" id="today-progress" style="width:0%"></div></div><p class="progress-caption" id="progress-message">Hoàn thành nhiệm vụ đầu tiên để khởi động ngày mới.</p></section>
+          <section class="panel timer-panel"><div class="panel-head"><h3>Phiên tập trung</h3><span class="timer-tag">POMODORO</span></div><div class="timer-display" id="timer-display">25:00</div><div class="timer-actions"><button class="timer-button" id="timer-toggle" type="button">Bắt đầu</button><button class="timer-reset" id="timer-reset" type="button" aria-label="Đặt lại đồng hồ" title="Đặt lại">↺</button></div><p class="focus-note">Tập trung vào <strong>một việc</strong> tại một thời điểm.</p></section>
+          <section class="panel form-panel" id="new-quest"><div class="panel-head"><h3>Thêm nhiệm vụ</h3><span aria-hidden="true">＋</span></div><form id="quest-form">
+            <div class="field"><label for="goal">Mục tiêu học tập</label><input id="goal" name="goal" maxlength="90" placeholder="VD: Ôn chương 3 môn Sinh" required></div>
+            <div class="field-row"><div class="field"><label for="subject">Môn học</label><select id="subject" name="subject"><option>Toán</option><option>Ngữ văn</option><option>Tiếng Anh</option><option>Khoa học</option><option>Lịch sử</option><option>Lập trình</option><option>Khác</option></select></div><div class="field"><label for="duration">Thời lượng (phút)</label><input id="duration" name="duration" type="number" min="5" max="600" step="5" value="30" required></div></div>
+            <div class="field"><label for="deadline">Hạn nộp / hoàn thành</label><input id="deadline" name="deadline" type="datetime-local" required></div>
+            <button class="add-button" type="submit"><span aria-hidden="true">＋</span> Thêm nhiệm vụ <span id="reward-preview">· +30 XP</span></button>
+          </form></section>
+        </aside>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script>
+    const STORAGE_KEY = 'studyquest-v1';
+    const DAY = 24 * 60 * 60 * 1000;
+    const now = new Date();
+    const todayKey = dateKey(now);
+    const seedTasks = [
+      { id: makeId(), goal: 'Ôn lại ghi chú bài học hôm nay', subject: 'Khoa học', duration: 30, deadline: atLocalTime(18, 30), done: false, created: todayKey },
+      { id: makeId(), goal: 'Làm bài tập chương đang học', subject: 'Toán', duration: 45, deadline: atLocalTime(20, 0), done: false, created: todayKey },
+      { id: makeId(), goal: 'Đọc trước bài mới và ghi câu hỏi', subject: 'Ngữ văn', duration: 25, deadline: atLocalTime(19, 0, 1), done: false, created: todayKey }
+    ];
+    let tasks = loadTasks();
+    let activeFilter = 'all';
+    let xp = Number(localStorage.getItem('studyquest-xp') || 0);
+    let timerSeconds = 25 * 60;
+    let timerHandle = null;
+    let toastHandle = null;
+
+    function makeId() { return `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
+    function dateKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
+    function atLocalTime(hour, minute, dayOffset = 0) { const date = new Date(); date.setDate(date.getDate() + dayOffset); date.setHours(hour, minute, 0, 0); return date.toISOString(); }
+    function loadTasks() { try { const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(stored) ? stored : seedTasks; } catch { return seedTasks; } }
+    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); localStorage.setItem('studyquest-xp', String(xp)); }
+    function escapeHtml(value) { return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
+    function formatDeadline(value) { const date = new Date(value); const isToday = dateKey(date) === todayKey; const isTomorrow = dateKey(date) === dateKey(new Date(Date.now() + DAY)); const prefix = isToday ? 'Hôm nay' : isTomorrow ? 'Ngày mai' : date.toLocaleDateString('vi-VN', { day: 'numeric', month: 'short' }); return `${prefix}, ${date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`; }
+    function isOverdue(task) { return !task.done && new Date(task.deadline).getTime() < Date.now(); }
+    function render() {
+      const sorted = [...tasks].sort((a, b) => Number(a.done) - Number(b.done) || new Date(a.deadline) - new Date(b.deadline));
+      const shown = sorted.filter(task => activeFilter === 'all' || (activeFilter === 'done' ? task.done : !task.done));
+      const list = document.querySelector('#quest-list');
+      list.innerHTML = shown.length ? shown.map((task, index) => `
+        <article class="quest ${task.done ? 'completed' : ''}" style="animation-delay:${Math.min(index * 45, 225)}ms">
+          <button class="quest-check" type="button" data-action="toggle" data-id="${escapeHtml(task.id)}" aria-label="${task.done ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}" title="${task.done ? 'Chưa hoàn thành' : 'Hoàn thành nhiệm vụ'}">${task.done ? '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8 3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}</button>
+          <div><div class="quest-title">${escapeHtml(task.goal)}</div><div class="quest-meta"><span><i class="subject-dot" aria-hidden="true"></i>${escapeHtml(task.subject)}</span><span>◷ ${Number(task.duration)} phút</span></div></div>
+          <div class="quest-side"><span class="reward">+${Math.max(5, Math.round(Number(task.duration)))} XP</span><span class="deadline ${isOverdue(task) ? 'overdue' : ''}">${isOverdue(task) ? 'Quá hạn · ' : ''}${formatDeadline(task.deadline)}</span></div>
+          <button class="delete-quest" type="button" data-action="delete" data-id="${escapeHtml(task.id)}" aria-label="Xóa nhiệm vụ" title="Xóa">×</button>
+        </article>`).join('') : `<div class="empty-state"><strong>${activeFilter === 'done' ? 'Chưa có nhiệm vụ hoàn thành' : activeFilter === 'pending' ? 'Bạn đã xử lý hết nhiệm vụ!' : 'Bản đồ còn trống'}</strong>${activeFilter === 'all' ? 'Thêm nhiệm vụ đầu tiên để bắt đầu hành trình.' : 'Thêm một mục tiêu mới và tiếp tục tích lũy XP.'}</div>`;
+      const completed = tasks.filter(task => task.done).length;
+      const pending = tasks.length - completed;
+      const minutes = tasks.filter(task => !task.done).reduce((sum, task) => sum + Number(task.duration), 0);
+      const todayTasks = tasks.filter(task => dateKey(new Date(task.deadline)) === todayKey);
+      const todayDone = todayTasks.filter(task => task.done).length;
+      const percent = todayTasks.length ? Math.round(todayDone / todayTasks.length * 100) : 0;
+      document.querySelector('#done-count').textContent = completed;
+      document.querySelector('#pending-count').textContent = pending;
+      document.querySelector('#nav-count').textContent = pending;
+      document.querySelector('#total-hours').textContent = (minutes / 60).toFixed(minutes % 60 ? 1 : 0);
+      document.querySelector('#week-minutes').textContent = `${tasks.filter(task => new Date(task.deadline) >= new Date(Date.now() - 7 * DAY)).reduce((sum, task) => sum + Number(task.duration), 0)} phút`;
+      document.querySelector('#progress-caption').textContent = `${todayDone} / ${todayTasks.length} nhiệm vụ`;
+      document.querySelector('#progress-percent').textContent = `${percent}%`;
+      document.querySelector('#today-progress').style.width = `${percent}%`;
+      document.querySelector('#progress-message').textContent = todayTasks.length ? (percent === 100 ? 'Tuyệt vời! Bạn đã hoàn thành kế hoạch hôm nay.' : 'Từng nhiệm vụ hoàn thành sẽ lấp đầy thanh tiến độ.') : 'Chưa có hạn hoàn thành hôm nay. Thêm nhiệm vụ để lên kế hoạch.';
+      const level = Math.floor(xp / 100) + 1;
+      document.querySelector('#level-label').textContent = `Cấp ${level}`;
+      document.querySelector('#level-badge').textContent = level;
+      document.querySelector('#xp-label').textContent = `${xp % 100} / 100 XP`;
+      document.querySelector('#level-progress').style.width = `${xp % 100}%`;
+      const finishedToday = tasks.some(task => task.done && task.completedAt && dateKey(new Date(task.completedAt)) === todayKey);
+      document.querySelector('#streak-label').textContent = finishedToday ? 'Bạn đang giữ nhịp học!' : 'Bắt đầu chuỗi học nhé!';
+    }
+
+    document.querySelector('#today-date').textContent = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(now);
+    document.querySelector('#deadline').value = (() => { const date = new Date(); date.setHours(20, 0, 0, 0); if (date < new Date()) date.setDate(date.getDate() + 1); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T20:00`; })();
+    render();
+
+    document.querySelectorAll('[data-list-filter], .nav-link[data-filter]').forEach(button => button.addEventListener('click', () => {
+      activeFilter = button.dataset.listFilter || button.dataset.filter;
+      document.querySelectorAll('.filter').forEach(item => item.classList.toggle('active', item.dataset.listFilter === activeFilter));
+      document.querySelectorAll('.nav-link').forEach(item => item.classList.toggle('active', item.dataset.filter === activeFilter));
+      render();
+    }));
+    document.querySelector('#quest-list').addEventListener('click', event => {
+      const button = event.target.closest('[data-action]');
+      if (!button) return;
+      const task = tasks.find(item => item.id === button.dataset.id);
+      if (!task) return;
+      if (button.dataset.action === 'toggle') {
+        task.done = !task.done;
+        if (task.done) { task.completedAt = new Date().toISOString(); const earned = Math.max(5, Math.round(Number(task.duration))); xp += earned; showToast(`Nhiệm vụ hoàn thành! +${earned} XP`); }
+        else { delete task.completedAt; xp = Math.max(0, xp - Math.max(5, Math.round(Number(task.duration)))); showToast('Đã chuyển nhiệm vụ về đang làm.'); }
+      } else { tasks = tasks.filter(item => item.id !== task.id); showToast('Đã xóa nhiệm vụ.'); }
+      save(); render();
+    });
+    document.querySelector('#quest-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const deadline = new Date(form.get('deadline'));
+      if (Number.isNaN(deadline.getTime()) || deadline.getTime() < Date.now()) { showToast('Hạn hoàn thành cần ở thời điểm trong tương lai.'); return; }
+      tasks.push({ id: makeId(), goal: String(form.get('goal')).trim(), subject: String(form.get('subject')), duration: Number(form.get('duration')), deadline: deadline.toISOString(), done: false, created: todayKey });
+      save(); render(); event.currentTarget.reset();
+      document.querySelector('#duration').value = '30';
+      document.querySelector('#deadline').value = (() => { const date = new Date(); date.setDate(date.getDate() + 1); date.setHours(20, 0, 0, 0); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T20:00`; })();
+      updateReward(); showToast('Đã thêm nhiệm vụ vào bản đồ!');
+    });
+    function updateReward() { document.querySelector('#reward-preview').textContent = `· +${Math.max(5, Math.round(Number(document.querySelector('#duration').value) || 0))} XP`; }
+    document.querySelector('#duration').addEventListener('input', updateReward);
+    function showToast(message) { const toast = document.querySelector('#toast'); toast.textContent = message; toast.hidden = false; clearTimeout(toastHandle); toastHandle = setTimeout(() => { toast.hidden = true; }, 2400); }
+    function updateTimer() { const minutes = Math.floor(timerSeconds / 60); const seconds = timerSeconds % 60; document.querySelector('#timer-display').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; }
+    document.querySelector('#timer-toggle').addEventListener('click', event => {
+      if (timerHandle) { clearInterval(timerHandle); timerHandle = null; event.currentTarget.textContent = 'Tiếp tục'; return; }
+      event.currentTarget.textContent = 'Tạm dừng';
+      timerHandle = setInterval(() => { timerSeconds--; updateTimer(); if (timerSeconds <= 0) { clearInterval(timerHandle); timerHandle = null; event.currentTarget.textContent = 'Bắt đầu'; timerSeconds = 25 * 60; updateTimer(); showToast('Hoàn thành phiên tập trung! Nghỉ một chút nhé.'); } }, 1000);
+    });
+    document.querySelector('#timer-reset').addEventListener('click', () => { clearInterval(timerHandle); timerHandle = null; timerSeconds = 25 * 60; updateTimer(); document.querySelector('#timer-toggle').textContent = 'Bắt đầu'; });
+  </script>
+</body>
+</html>
