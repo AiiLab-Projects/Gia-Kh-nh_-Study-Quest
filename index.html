@@ -96,7 +96,18 @@
     .deadline { color: var(--muted); font-size: 10px; white-space: nowrap; }
     .deadline.overdue { color: #cb563b; font-weight: 700; }
     .delete-quest { position: absolute; top: 7px; right: 7px; display: none; width: 25px; height: 25px; border: 0; border-radius: 6px; background: #fff0eb; color: #bd5d46; cursor: pointer; }
+    .quest-edit-action { display: none; padding: 5px 9px; border: 1px solid #bcd7de; border-radius: 6px; background: #eef6f9; color: #3f6b7a; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .quest-edit-action:hover { background: #dceef4; }
+    .quest-list.editing .quest-edit-action { display: inline-flex; align-items: center; gap: 4px; }
+    .draw-overlay { position: fixed; top: 0; left: 0; z-index: 20; pointer-events: none; }
+    .draw-overlay .crayon { fill: none; stroke: #e8593c; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; opacity: .88; }
+    .draw-overlay .crayon.faint { stroke-width: 3.5; opacity: .5; }
+    .draw-overlay .crayon.arrow { stroke-width: 4; }
+    .draw-overlay .crayon-text { fill: #e8593c; opacity: 0; font: italic 700 18px 'Space Grotesk', sans-serif; }
     .quest:hover .delete-quest, .delete-quest:focus-visible { display: grid; place-items: center; }
+    .cancel-edit { display: flex; width: 100%; justify-content: center; align-items: center; height: 34px; margin-top: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; }
+    .cancel-edit:hover { color: var(--ink); border-color: #c9cbc0; }
+    .cancel-edit[hidden] { display: none; }
     .empty-state { padding: 30px 18px; border: 1px dashed #d8d8ce; border-radius: 9px; color: var(--muted); text-align: center; font-size: 12px; }
     .empty-state strong { display: block; margin-bottom: 5px; color: var(--ink); font: 600 14px 'Space Grotesk', sans-serif; }
     .right-column { display: grid; gap: 14px; }
@@ -143,6 +154,7 @@
         <div class="nav-label">Không gian học</div>
         <button class="nav-link active" type="button" data-filter="all"><span class="nav-icon" aria-hidden="true">◫</span><span>Nhiệm vụ</span><span class="nav-count" id="nav-count">0</span></button>
         <button class="nav-link" type="button" data-filter="done"><span class="nav-icon" aria-hidden="true">✓</span><span>Đã hoàn thành</span></button>
+        <button class="nav-link" type="button" data-view="edit"><span class="nav-icon" aria-hidden="true">✎</span><span>Chỉnh sửa nhiệm vụ</span></button>
       </nav>
       <div class="side-level">
         <div class="side-level-top"><div><strong id="level-label">Cấp 1</strong><br><small id="xp-label">0 / 100 XP</small></div><div class="level-badge" id="level-badge">1</div></div>
@@ -170,13 +182,13 @@
 
         <aside class="right-column" aria-label="Tiến độ và công cụ">
           <section class="panel"><div class="panel-head"><h3>Tiến độ hôm nay</h3><span aria-hidden="true">◈</span></div><div class="progress-top"><span id="progress-caption">0 / 0 nhiệm vụ</span><strong id="progress-percent">0%</strong></div><div class="progress-track"><div class="progress-fill" id="today-progress" style="width:0%"></div></div><p class="progress-caption" id="progress-message">Hoàn thành nhiệm vụ đầu tiên để khởi động ngày mới.</p></section>
-          <section class="panel timer-panel"><div class="panel-head"><h3>Phiên tập trung</h3><span class="timer-tag">POMODORO</span></div><div class="timer-display" id="timer-display">25:00</div><div class="timer-actions"><button class="timer-button" id="timer-toggle" type="button">Bắt đầu</button><button class="timer-reset" id="timer-reset" type="button" aria-label="Đặt lại đồng hồ" title="Đặt lại">↺</button></div><p class="focus-note">Tập trung vào <strong>một việc</strong> tại một thời điểm.</p></section>
-          <section class="panel form-panel" id="new-quest"><div class="panel-head"><h3>Thêm nhiệm vụ</h3><span aria-hidden="true">＋</span></div><form id="quest-form">
+          <section class="panel form-panel" id="new-quest"><div class="panel-head"><h3 id="form-title">Thêm nhiệm vụ</h3><span aria-hidden="true">＋</span></div><form id="quest-form">
             <div class="field"><label for="goal">Mục tiêu học tập</label><input id="goal" name="goal" maxlength="90" placeholder="VD: Ôn chương 3 môn Sinh" required></div>
             <div class="field-row"><div class="field"><label for="subject">Môn học</label><select id="subject" name="subject"><option>Toán</option><option>Ngữ văn</option><option>Tiếng Anh</option><option>Khoa học</option><option>Lịch sử</option><option>Lập trình</option><option>Khác</option></select></div><div class="field"><label for="duration">Thời lượng (phút)</label><input id="duration" name="duration" type="number" min="5" max="600" step="5" value="30" required></div></div>
             <div class="field"><label for="deadline">Hạn nộp / hoàn thành</label><input id="deadline" name="deadline" type="datetime-local" required></div>
-            <button class="add-button" type="submit"><span aria-hidden="true">＋</span> Thêm nhiệm vụ <span id="reward-preview">· +30 XP</span></button>
+            <button class="add-button" type="submit"><span aria-hidden="true">＋</span> <span id="submit-label">Thêm nhiệm vụ</span> <span id="reward-preview">· +30 XP</span></button><button class="cancel-edit" id="cancel-edit" type="button" hidden>Hủy chỉnh sửa</button>
           </form></section>
+          <section class="panel timer-panel"><div class="panel-head"><h3>Phiên tập trung</h3><span class="timer-tag">POMODORO</span></div><div class="timer-display" id="timer-display">25:00</div><div class="timer-actions"><button class="timer-button" id="timer-toggle" type="button">Bắt đầu</button><button class="timer-reset" id="timer-reset" type="button" aria-label="Đặt lại đồng hồ" title="Đặt lại">↺</button></div><p class="focus-note">Tập trung vào <strong>một việc</strong> tại một thời điểm.</p></section>
         </aside>
       </div>
     </main>
@@ -198,6 +210,8 @@
     let timerSeconds = 25 * 60;
     let timerHandle = null;
     let toastHandle = null;
+    let editingId = null;
+    let activeView = 'tasks';
 
     function makeId() { return `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
     function dateKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
@@ -211,11 +225,12 @@
       const sorted = [...tasks].sort((a, b) => Number(a.done) - Number(b.done) || new Date(a.deadline) - new Date(b.deadline));
       const shown = sorted.filter(task => activeFilter === 'all' || (activeFilter === 'done' ? task.done : !task.done));
       const list = document.querySelector('#quest-list');
+      list.classList.toggle('editing', activeView === 'edit');
       list.innerHTML = shown.length ? shown.map((task, index) => `
         <article class="quest ${task.done ? 'completed' : ''}" style="animation-delay:${Math.min(index * 45, 225)}ms">
           <button class="quest-check" type="button" data-action="toggle" data-id="${escapeHtml(task.id)}" aria-label="${task.done ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}" title="${task.done ? 'Chưa hoàn thành' : 'Hoàn thành nhiệm vụ'}">${task.done ? '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8 3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}</button>
           <div><div class="quest-title">${escapeHtml(task.goal)}</div><div class="quest-meta"><span><i class="subject-dot" aria-hidden="true"></i>${escapeHtml(task.subject)}</span><span>◷ ${Number(task.duration)} phút</span></div></div>
-          <div class="quest-side"><span class="reward">+${Math.max(5, Math.round(Number(task.duration)))} XP</span><span class="deadline ${isOverdue(task) ? 'overdue' : ''}">${isOverdue(task) ? 'Quá hạn · ' : ''}${formatDeadline(task.deadline)}</span></div>
+          <div class="quest-side"><span class="reward">+${Math.max(5, Math.round(Number(task.duration)))} XP</span><span class="deadline ${isOverdue(task) ? 'overdue' : ''}">${isOverdue(task) ? 'Quá hạn · ' : ''}${formatDeadline(task.deadline)}</span><button class="quest-edit-action" type="button" data-action="edit" data-id="${escapeHtml(task.id)}">✎ Chỉnh sửa</button></div>
           <button class="delete-quest" type="button" data-action="delete" data-id="${escapeHtml(task.id)}" aria-label="Xóa nhiệm vụ" title="Xóa">×</button>
         </article>`).join('') : `<div class="empty-state"><strong>${activeFilter === 'done' ? 'Chưa có nhiệm vụ hoàn thành' : activeFilter === 'pending' ? 'Bạn đã xử lý hết nhiệm vụ!' : 'Bản đồ còn trống'}</strong>${activeFilter === 'all' ? 'Thêm nhiệm vụ đầu tiên để bắt đầu hành trình.' : 'Thêm một mục tiêu mới và tiếp tục tích lũy XP.'}</div>`;
       const completed = tasks.filter(task => task.done).length;
@@ -243,15 +258,26 @@
     }
 
     document.querySelector('#today-date').textContent = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(now);
-    document.querySelector('#deadline').value = (() => { const date = new Date(); date.setHours(20, 0, 0, 0); if (date < new Date()) date.setDate(date.getDate() + 1); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T20:00`; })();
+    setDefaultDeadline();
     render();
 
     document.querySelectorAll('[data-list-filter], .nav-link[data-filter]').forEach(button => button.addEventListener('click', () => {
       activeFilter = button.dataset.listFilter || button.dataset.filter;
+      activeView = 'tasks';
+      if (editingId) stopEdit();
       document.querySelectorAll('.filter').forEach(item => item.classList.toggle('active', item.dataset.listFilter === activeFilter));
       document.querySelectorAll('.nav-link').forEach(item => item.classList.toggle('active', item.dataset.filter === activeFilter));
       render();
     }));
+    document.querySelector('[data-view="edit"]').addEventListener('click', () => {
+      activeView = 'edit';
+      activeFilter = 'all';
+      document.querySelectorAll('.filter').forEach(item => item.classList.toggle('active', item.dataset.listFilter === 'all'));
+      document.querySelectorAll('.nav-link').forEach(item => item.classList.toggle('active', item.dataset.view === 'edit'));
+      render();
+      document.querySelector('#quest-heading').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(showCrayonHint, 700);
+    });
     document.querySelector('#quest-list').addEventListener('click', event => {
       const button = event.target.closest('[data-action]');
       if (!button) return;
@@ -261,22 +287,94 @@
         task.done = !task.done;
         if (task.done) { task.completedAt = new Date().toISOString(); const earned = Math.max(5, Math.round(Number(task.duration))); xp += earned; showToast(`Nhiệm vụ hoàn thành! +${earned} XP`); }
         else { delete task.completedAt; xp = Math.max(0, xp - Math.max(5, Math.round(Number(task.duration)))); showToast('Đã chuyển nhiệm vụ về đang làm.'); }
-      } else { tasks = tasks.filter(item => item.id !== task.id); showToast('Đã xóa nhiệm vụ.'); }
+      } else if (button.dataset.action === 'edit') { startEdit(task); } else { tasks = tasks.filter(item => item.id !== task.id); showToast('Đã xóa nhiệm vụ.'); }
       save(); render();
     });
     document.querySelector('#quest-form').addEventListener('submit', event => {
       event.preventDefault();
       const form = new FormData(event.currentTarget);
       const deadline = new Date(form.get('deadline'));
+      if (editingId) {
+        if (Number.isNaN(deadline.getTime())) { showToast('Hạn hoàn thành không hợp lệ.'); return; }
+        const task = tasks.find(item => item.id === editingId);
+        if (task) { task.goal = String(form.get('goal')).trim(); task.subject = String(form.get('subject')); task.duration = Number(form.get('duration')); task.deadline = deadline.toISOString(); }
+        stopEdit(); save(); render(); showToast('Đã lưu thay đổi nhiệm vụ.'); return;
+      }
       if (Number.isNaN(deadline.getTime()) || deadline.getTime() < Date.now()) { showToast('Hạn hoàn thành cần ở thời điểm trong tương lai.'); return; }
       tasks.push({ id: makeId(), goal: String(form.get('goal')).trim(), subject: String(form.get('subject')), duration: Number(form.get('duration')), deadline: deadline.toISOString(), done: false, created: todayKey });
       save(); render(); event.currentTarget.reset();
       document.querySelector('#duration').value = '30';
-      document.querySelector('#deadline').value = (() => { const date = new Date(); date.setDate(date.getDate() + 1); date.setHours(20, 0, 0, 0); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T20:00`; })();
+      setDefaultDeadline();
       updateReward(); showToast('Đã thêm nhiệm vụ vào bản đồ!');
     });
     function updateReward() { document.querySelector('#reward-preview').textContent = `· +${Math.max(5, Math.round(Number(document.querySelector('#duration').value) || 0))} XP`; }
     document.querySelector('#duration').addEventListener('input', updateReward);
+    document.querySelector('#cancel-edit').addEventListener('click', () => { stopEdit(); showToast('Đã hủy chỉnh sửa.'); });
+    function defaultDeadlineValue() { const date = new Date(); date.setHours(20, 0, 0, 0); if (date < new Date()) date.setDate(date.getDate() + 1); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T20:00`; }
+    function setDefaultDeadline() { document.querySelector('#deadline').value = defaultDeadlineValue(); }
+    function toLocalInputValue(value) { const date = new Date(value); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`; }
+    function startEdit(task) { dismissHint(); editingId = task.id; document.querySelector('#goal').value = task.goal; const subjectSelect = document.querySelector('#subject'); subjectSelect.value = task.subject; if (!subjectSelect.value) subjectSelect.value = 'Khác'; document.querySelector('#duration').value = task.duration; document.querySelector('#deadline').value = toLocalInputValue(task.deadline); document.querySelector('#form-title').textContent = 'Chỉnh sửa nhiệm vụ'; document.querySelector('#submit-label').textContent = 'Lưu thay đổi'; document.querySelector('#cancel-edit').hidden = false; updateReward(); document.querySelector('#new-quest').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    function stopEdit() { editingId = null; document.querySelector('#quest-form').reset(); document.querySelector('#duration').value = '30'; setDefaultDeadline(); document.querySelector('#form-title').textContent = 'Thêm nhiệm vụ'; document.querySelector('#submit-label').textContent = 'Thêm nhiệm vụ'; document.querySelector('#cancel-edit').hidden = true; updateReward(); }
+    let hintOverlay = null;
+    let hintTimer = null;
+    function dismissHint() { if (hintOverlay) { hintOverlay.remove(); hintOverlay = null; } clearTimeout(hintTimer); ['pointerdown', 'wheel', 'keydown', 'resize'].forEach(evt => window.removeEventListener(evt, dismissHint)); }
+    function wobbleEllipse(cx, cy, rx, ry, jitter) { const points = 26, sweep = Math.PI * 2 * 1.18; let d = ''; for (let i = 0; i <= points; i++) { const a = (i / points) * sweep - 0.5; const n = (Math.random() - 0.5) * jitter; const x = cx + Math.cos(a) * (rx + n); const y = cy + Math.sin(a) * (ry + n); d += `${i ? ' L' : 'M'} ${x.toFixed(1)} ${y.toFixed(1)}`; } return d; }
+    function wobbleLine(x1, y1, x2, y2, jitter) { const points = 9; let d = ''; for (let i = 0; i <= points; i++) { const t = i / points; const wobble = i && i < points ? jitter : 0; const x = x1 + (x2 - x1) * t + (Math.random() - 0.5) * wobble; const y = y1 + (y2 - y1) * t + (Math.random() - 0.5) * wobble; d += `${i ? ' L' : 'M'} ${x.toFixed(1)} ${y.toFixed(1)}`; } return d; }
+    function showCrayonHint() {
+      dismissHint();
+      const buttons = [...document.querySelectorAll('.quest-edit-action')].filter(el => { const r = el.getBoundingClientRect(); return r.width > 0 && r.top > 50 && r.bottom < window.innerHeight - 10; });
+      if (!buttons.length) return;
+      const NS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('class', 'draw-overlay');
+      svg.setAttribute('width', window.innerWidth);
+      svg.setAttribute('height', window.innerHeight);
+      svg.setAttribute('aria-hidden', 'true');
+      const strokes = [];
+      buttons.forEach((el, index) => {
+        const r = el.getBoundingClientRect();
+        const circle = document.createElementNS(NS, 'path');
+        circle.setAttribute('class', index ? 'crayon faint' : 'crayon');
+        circle.setAttribute('d', wobbleEllipse(r.left + r.width / 2, r.top + r.height / 2, r.width / 2 + 13, r.height / 2 + 9, 4.5));
+        svg.appendChild(circle);
+        strokes.push(circle);
+      });
+      const first = buttons[0].getBoundingClientRect();
+      const textX = Math.max(170, first.left - 25);
+      const textY = Math.max(75, first.top - 55);
+      const tipX = first.left - 12;
+      const tipY = first.top + first.height / 2 - 3;
+      const arrow = document.createElementNS(NS, 'path');
+      arrow.setAttribute('class', 'crayon arrow');
+      arrow.setAttribute('d', wobbleLine(textX + 4, textY + 13, tipX, tipY, 3.5));
+      svg.appendChild(arrow);
+      strokes.push(arrow);
+      const head = document.createElementNS(NS, 'path');
+      head.setAttribute('class', 'crayon arrow');
+      head.setAttribute('d', `M ${tipX} ${tipY} L ${tipX - 14} ${tipY - 8} M ${tipX} ${tipY} L ${tipX - 12} ${tipY + 9}`);
+      svg.appendChild(head);
+      strokes.push(head);
+      const text = document.createElementNS(NS, 'text');
+      text.setAttribute('class', 'crayon-text');
+      text.setAttribute('x', textX);
+      text.setAttribute('y', textY);
+      text.textContent = 'Chỉnh nhiệm vụ ở đây!';
+      svg.appendChild(text);
+      document.body.appendChild(svg);
+      hintOverlay = svg;
+      requestAnimationFrame(() => {});
+      strokes.forEach((path, index) => {
+        const length = path.getTotalLength();
+        path.style.strokeDasharray = length;
+        path.style.strokeDashoffset = length;
+        path.style.transition = `stroke-dashoffset .45s ease ${index * 0.3}s`;
+        setTimeout(() => { path.style.strokeDashoffset = '0'; }, 30 + index * 300);
+      });
+      text.style.transition = `opacity .4s ease ${strokes.length * 0.3}s`;
+      setTimeout(() => { text.style.opacity = '1'; }, 30 + strokes.length * 300);
+      hintTimer = setTimeout(dismissHint, 6500);
+      ['pointerdown', 'wheel', 'keydown', 'resize'].forEach(evt => window.addEventListener(evt, dismissHint, { passive: true }));
+    }
     function showToast(message) { const toast = document.querySelector('#toast'); toast.textContent = message; toast.hidden = false; clearTimeout(toastHandle); toastHandle = setTimeout(() => { toast.hidden = true; }, 2400); }
     function updateTimer() { const minutes = Math.floor(timerSeconds / 60); const seconds = timerSeconds % 60; document.querySelector('#timer-display').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; }
     document.querySelector('#timer-toggle').addEventListener('click', event => {
